@@ -7,7 +7,9 @@ data class MeteoBlueResponse(
     @SerializedName("metadata")       val metadata: Metadata,
     @SerializedName("units")          val units: Units,
     @SerializedName("data_1h")        val hourly: HourlyData,
-    @SerializedName("data_day")       val daily: DailyData
+    @SerializedName("data_day")       val daily: DailyData,
+    // Presente solo nelle risposte di errore (es. chiave/pacchetto non validi)
+    @SerializedName("error_message")  val errorMessage: String? = null
 )
 
 data class Metadata(

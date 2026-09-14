@@ -29,6 +29,21 @@ class ForecastRepository @Inject constructor(
             longitude = lon,
             apiKey    = apiKey
         )
+
+        // MeteoBlue restituisce HTTP 200 anche per errori applicativi (chiave/pacchetto
+        // non validi, quota esaurita, ecc.); in quel caso i campi dati risultano nulli
+        // nonostante il tipo Kotlin non-null (limite noto di Gson + reflection).
+        @Suppress("SENSELESS_COMPARISON")
+        val isIncomplete = response.hourly == null || response.daily == null ||
+            response.hourly.time == null || response.daily.time == null
+
+        if (response.errorMessage != null || isIncomplete) {
+            throw IllegalStateException(
+                response.errorMessage
+                    ?: "Dati meteo non disponibili per questa posizione. Verifica che la tua chiave API MeteoBlue includa i pacchetti \"basic-1h\" e \"basic-day\"."
+            )
+        }
+
         return mapToForecastResult(response, locationName)
     }
 
