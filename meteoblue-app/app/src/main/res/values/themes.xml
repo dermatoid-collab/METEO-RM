@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MeteoApp" parent="android:Theme.Material.NoTitleBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
+    <style name="Theme.MeteoApp.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0D1B2A</item>
+        <item name="windowSplashScreenAnimatedIcon">@android:drawable/ic_dialog_info</item>
+        <item name="postSplashScreenTheme">@style/Theme.MeteoApp</item>
+    </style>
+</resources>
