@@ -103,7 +103,8 @@ class ForecastRepository @Inject constructor(
                 windDirection    = h.windDirection.getOrElse(i) { 0 },
                 pictoCode        = h.pictoCode[i],
                 uvIndex          = h.uvIndex.getOrElse(i) { 0 },
-                humidity         = h.humidity.getOrElse(i) { 0 }
+                humidity         = h.humidity.getOrElse(i) { 0 },
+                rainspot         = h.rainspot?.getOrElse(i) { EMPTY_RAINSPOT } ?: EMPTY_RAINSPOT
             )
         }
 
@@ -144,7 +145,8 @@ class ForecastRepository @Inject constructor(
                 moonrise        = d.moonrise?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
                 moonset         = d.moonset?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
                 pressureMax     = d.pressureMax.getOrElse(i) { 1013.0 },
-                humidity        = dayHumidity
+                humidity        = dayHumidity,
+                rainspot        = d.rainspot?.getOrElse(i) { EMPTY_RAINSPOT } ?: EMPTY_RAINSPOT
             )
         }
 

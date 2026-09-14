@@ -41,7 +41,9 @@ data class HourlyData(
     @SerializedName("winddirection")       val windDirection: List<Int>,
     @SerializedName("pictocode")           val pictoCode: List<Int>,
     @SerializedName("uvindex")             val uvIndex: List<Int>,
-    @SerializedName("relativehumidity")    val humidity: List<Int>
+    @SerializedName("relativehumidity")    val humidity: List<Int>,
+    // Mini-mappa precipitazioni 7x7 (49 caratteri, cifre 0-9 = intensita' per cella)
+    @SerializedName("rainspot")            val rainspot: List<String>? = null
 )
 
 // ── Dati giornalieri ──────────────────────────────────────────────────────────
@@ -66,8 +68,16 @@ data class DailyData(
     @SerializedName("sunrise")              val sunrise: List<String>? = null,
     @SerializedName("sunset")               val sunset: List<String>? = null,
     @SerializedName("moonrise")             val moonrise: List<String>? = null,
-    @SerializedName("moonset")              val moonset: List<String>? = null
+    @SerializedName("moonset")              val moonset: List<String>? = null,
+    // Mini-mappa precipitazioni 7x7 (49 caratteri, cifre 0-9 = intensita' per cella)
+    @SerializedName("rainspot")             val rainspot: List<String>? = null
 )
+
+// ── Mini-mappa precipitazioni 7x7 ────────────────────────────────────────────
+// Stringa di 49 cifre (0-9, riga per riga) come restituita da MeteoBlue in
+// "rainspot": nessun dato equivalente da altre fonti (es. Google Weather),
+// quindi il default e' una griglia vuota (nessuna precipitazione).
+const val EMPTY_RAINSPOT = "0000000000000000000000000000000000000000000000000"
 
 // ── UI Models (dominio) ───────────────────────────────────────────────────────
 data class CurrentConditions(
@@ -89,7 +99,8 @@ data class HourlyForecast(
     val windDirection: Int,
     val pictoCode: Int,
     val uvIndex: Int,
-    val humidity: Int
+    val humidity: Int,
+    val rainspot: String = EMPTY_RAINSPOT
 )
 
 data class DailyForecast(
@@ -112,7 +123,8 @@ data class DailyForecast(
     val moonrise: String,
     val moonset: String,
     val pressureMax: Double,
-    val humidity: Int         // dal primo dato orario del giorno
+    val humidity: Int,        // dal primo dato orario del giorno
+    val rainspot: String = EMPTY_RAINSPOT
 )
 
 data class LocationSuggestion(

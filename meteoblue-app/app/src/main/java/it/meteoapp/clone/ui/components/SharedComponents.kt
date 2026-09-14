@@ -1,5 +1,6 @@
 package it.meteoapp.clone.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,9 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -196,4 +202,45 @@ fun ErrorMessage(message: String) {
             Text(message, style = MaterialTheme.typography.bodyMedium, color = TextMuted, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
     }
+}
+
+// ── Mini-mappa precipitazioni 7x7 (rainspot) ─────────────────────────────────
+// Riproduce la mini-mappa radar di MeteoBlue: 49 celle (7x7), una cifra 0-9
+// per cella che indica l'intensita' di precipitazione locale prevista.
+@Composable
+fun RainspotGrid(
+    rainspot: String,
+    modifier: Modifier = Modifier,
+    size: Dp = 44.dp,
+    backgroundColor: Color = RadarDark
+) {
+    val values = remember(rainspot) {
+        IntArray(49) { i -> rainspot.getOrNull(i)?.digitToIntOrNull()?.coerceIn(0, 9) ?: 0 }
+    }
+    Canvas(
+        modifier = modifier
+            .size(size)
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+    ) {
+        val gridSize = 7
+        val cell = this.size.width / gridSize
+        for (row in 0 until gridSize) {
+            for (col in 0 until gridSize) {
+                val level = values[row * gridSize + col]
+                if (level > 0) {
+                    drawRect(
+                        color = rainIntensityColor(level),
+                        topLeft = Offset(col * cell, row * cell),
+                        size = Size(cell, cell)
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun rainIntensityColor(level: Int): Color {
+    val t = (level.coerceIn(1, 9) - 1) / 8f
+    return lerp(PrecipBlue, PrecipHeavy, t)
 }

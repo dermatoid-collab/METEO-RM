@@ -37,5 +37,4 @@ val AccentBlue         = Color(0xFF4A90D9)
 val AccentGlow         = Color(0xFF2196F3)
 
 // ── Radar thumbnail ──────────────────────────────────────────────────────────
-val RadarGreen         = Color(0xFF26A69A)
 val RadarDark          = Color(0xFF1B3A35)

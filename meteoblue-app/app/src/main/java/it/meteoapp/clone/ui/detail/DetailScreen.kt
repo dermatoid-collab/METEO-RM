@@ -30,6 +30,7 @@ import it.meteoapp.clone.data.model.HourlyForecast
 import it.meteoapp.clone.data.repository.ForecastResult
 import it.meteoapp.clone.data.repository.pictoCodeToDescription
 import it.meteoapp.clone.data.repository.windDirectionArrow
+import it.meteoapp.clone.ui.components.RainspotGrid
 import it.meteoapp.clone.ui.components.WeatherIcon
 import it.meteoapp.clone.ui.home.TempBox
 import it.meteoapp.clone.ui.theme.*
@@ -381,35 +382,8 @@ fun HourlyForecastRow(h: HourlyForecast) {
 
         Spacer(Modifier.width(8.dp))
 
-        // Miniatura radar (placeholder)
-        RadarThumbnail()
-    }
-}
-
-@Composable
-fun RadarThumbnail() {
-    Box(
-        modifier = Modifier
-            .size(44.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(RadarDark),
-        contentAlignment = Alignment.Center
-    ) {
-        // Cerchi concentrici stile radar
-        for (r in listOf(18.dp, 12.dp, 6.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(r)
-                    .clip(CircleShape)
-                    .background(Color.Transparent)
-                    .then(
-                        Modifier.clip(CircleShape).background(
-                            RadarGreen.copy(alpha = 0.3f)
-                        )
-                    )
-            )
-        }
-        Box(modifier = Modifier.size(3.dp).clip(CircleShape).background(RadarGreen))
+        // Mini-mappa precipitazioni 7x7 (rainspot), stile MeteoBlue
+        RainspotGrid(rainspot = h.rainspot)
     }
 }
 
