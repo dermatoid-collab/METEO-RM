@@ -57,7 +57,6 @@ class GoogleWeatherRepository @Inject constructor(
                 precipProbability = h.precipitation?.probability?.percent ?: 0,
                 precipitation     = h.precipitation?.qpf?.quantity ?: 0.0,
                 windSpeed         = windSpeedRange(h.wind?.speed?.value),
-                windSpeedMin      = (h.wind?.speed?.value ?: 0.0) * 0.7,
                 windDirection     = h.wind?.direction?.degrees?.toInt() ?: 0,
                 pictoCode         = googleTypeToPickoCode(h.weatherCondition?.type),
                 uvIndex           = h.uvIndex ?: 0,
