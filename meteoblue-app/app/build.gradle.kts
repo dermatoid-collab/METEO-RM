@@ -94,6 +94,7 @@ dependencies {
 
     // Coroutines
     implementation(libs.coroutines.android)
+    implementation(libs.coroutines.play.services)
 
     // Location
     implementation(libs.play.services.location)

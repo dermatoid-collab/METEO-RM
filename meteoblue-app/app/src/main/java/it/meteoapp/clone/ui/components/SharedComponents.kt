@@ -64,8 +64,7 @@ fun MeteoTopBar(
                 focusedTextColor        = TextPrimary,
                 unfocusedTextColor      = TextPrimary
             ),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
-            onValueChange  // bug: duplicated, handled below
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary)
         )
         // GPS
         IconButton(onClick = onGpsClick, modifier = Modifier.size(40.dp)) {
