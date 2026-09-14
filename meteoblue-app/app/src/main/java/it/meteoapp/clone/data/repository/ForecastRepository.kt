@@ -99,8 +99,7 @@ class ForecastRepository @Inject constructor(
                 feltTemperature  = h.feltTemperature.getOrElse(i) { h.temperature[i] }.toInt(),
                 precipProbability = h.precipProbability.getOrElse(i) { 0 },
                 precipitation    = h.precipitation.getOrElse(i) { 0.0 },
-                windSpeed        = "${h.windSpeedMin.getOrElse(i){0.0}.toInt()}-${h.windSpeed[i].toInt()}",
-                windSpeedMin     = h.windSpeedMin.getOrElse(i) { 0.0 },
+                windSpeed        = "${h.windSpeed.getOrElse(i) { 0.0 }.toInt()}",
                 windDirection    = h.windDirection.getOrElse(i) { 0 },
                 pictoCode        = h.pictoCode[i],
                 uvIndex          = h.uvIndex.getOrElse(i) { 0 },
@@ -132,14 +131,18 @@ class ForecastRepository @Inject constructor(
                 windSpeedMax    = d.windSpeedMax.getOrElse(i) { 0.0 },
                 windSpeedMin    = d.windSpeedMin.getOrElse(i) { 0.0 },
                 windDirection   = d.winddirection.getOrElse(i) { 0 },
-                pictocodeDay    = d.pictocodeDay[i],
-                pictocodeNight  = d.pictocodeNight[i],
+                // Nessuno split giorno/notte disponibile nel piano attivo: si
+                // riusa lo stesso pictocode per entrambe le icone.
+                pictocodeDay    = d.pictoCode.getOrElse(i) { 1 },
+                pictocodeNight  = d.pictoCode.getOrElse(i) { 1 },
                 uvIndex         = d.uvIndex.getOrElse(i) { 0 },
-                sunshineHours   = d.sunshineHours.getOrElse(i) { 0.0 },
-                sunrise         = d.sunrise.getOrElse(i) { "--:--" }.takeLast(5),
-                sunset          = d.sunset.getOrElse(i) { "--:--" }.takeLast(5),
-                moonrise        = d.moonrise.getOrElse(i) { "--:--" }.takeLast(5),
-                moonset         = d.moonset.getOrElse(i) { "--:--" }.takeLast(5),
+                // Alba/tramonto/fasi lunari richiedono il pacchetto MeteoBlue
+                // "sunmoon" (non attivo): restituiamo un placeholder se assenti.
+                sunshineHours   = d.sunshineHours?.getOrElse(i) { 0.0 } ?: 0.0,
+                sunrise         = d.sunrise?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
+                sunset          = d.sunset?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
+                moonrise        = d.moonrise?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
+                moonset         = d.moonset?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
                 pressureMax     = d.pressureMax.getOrElse(i) { 1013.0 },
                 humidity        = dayHumidity
             )

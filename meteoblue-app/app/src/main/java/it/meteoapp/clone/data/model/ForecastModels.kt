@@ -23,7 +23,7 @@ data class Metadata(
 
 data class Units(
     @SerializedName("temperature")    val temperature: String,  // "°C"
-    @SerializedName("wind")           val wind: String,         // "km/h"
+    @SerializedName("windspeed")      val wind: String,         // "km/h"
     @SerializedName("precipitation")  val precipitation: String // "mm"
 )
 
@@ -34,8 +34,10 @@ data class HourlyData(
     @SerializedName("felttemperature")     val feltTemperature: List<Double>,
     @SerializedName("precipitation")       val precipitation: List<Double>,
     @SerializedName("precipitation_probability") val precipProbability: List<Int>,
+    // Nota: il pacchetto basic-1h di MeteoBlue restituisce un solo valore di
+    // vento per ora (non un range min-max come nei dati giornalieri) — non
+    // esiste alcuna chiave "windspeedmin" in data_1h.
     @SerializedName("windspeed")           val windSpeed: List<Double>,
-    @SerializedName("windspeedmin")        val windSpeedMin: List<Double>,
     @SerializedName("winddirection")       val windDirection: List<Int>,
     @SerializedName("pictocode")           val pictoCode: List<Int>,
     @SerializedName("uvindex")             val uvIndex: List<Int>,
@@ -52,15 +54,19 @@ data class DailyData(
     @SerializedName("windspeed_max")        val windSpeedMax: List<Double>,
     @SerializedName("windspeed_min")        val windSpeedMin: List<Double>,
     @SerializedName("winddirection")        val windDirection: List<Int>,
-    @SerializedName("pictocode_day")        val pictocodeDay: List<Int>,
-    @SerializedName("pictocode_night")      val pictocodeNight: List<Int>,
+    // Il pacchetto basic-day restituisce un solo pictocode giornaliero: non
+    // esiste uno split giorno/notte senza il pacchetto MeteoBlue "sunmoon".
+    @SerializedName("pictocode")            val pictoCode: List<Int>,
     @SerializedName("uvindex")              val uvIndex: List<Int>,
-    @SerializedName("sunshine_time")        val sunshineHours: List<Double>,
-    @SerializedName("sunrise")              val sunrise: List<String>,
-    @SerializedName("sunset")              val sunset: List<String>,
-    @SerializedName("moonrise")             val moonrise: List<String>,
-    @SerializedName("moonset")             val moonset: List<String>,
-    @SerializedName("sealevelpressure_max") val pressureMax: List<Double>
+    @SerializedName("sealevelpressure_max") val pressureMax: List<Double>,
+    // Campi disponibili solo con il pacchetto MeteoBlue "sunmoon" (non
+    // incluso nel piano basic-1h_basic-day) — assenti dalla risposta reale,
+    // quindi opzionali per non far fallire il parsing.
+    @SerializedName("sunshine_time")        val sunshineHours: List<Double>? = null,
+    @SerializedName("sunrise")              val sunrise: List<String>? = null,
+    @SerializedName("sunset")               val sunset: List<String>? = null,
+    @SerializedName("moonrise")             val moonrise: List<String>? = null,
+    @SerializedName("moonset")              val moonset: List<String>? = null
 )
 
 // ── UI Models (dominio) ───────────────────────────────────────────────────────
@@ -79,8 +85,7 @@ data class HourlyForecast(
     val feltTemperature: Int,
     val precipProbability: Int,
     val precipitation: Double,
-    val windSpeed: String,    // "7-22"
-    val windSpeedMin: Double,
+    val windSpeed: String,    // "22" (valore singolo, il pacchetto orario non fornisce un range)
     val windDirection: Int,
     val pictoCode: Int,
     val uvIndex: Int,
