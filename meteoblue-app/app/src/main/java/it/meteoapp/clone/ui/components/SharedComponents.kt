@@ -256,20 +256,36 @@ fun RainspotGrid(
             }
         }
 
-        // Cerchi concentrici stile radar, sovrapposti alla griglia (come in MeteoBlue)
+        // Mirino radar stile MeteoBlue: 3 cerchi concentrici (esterno, medio,
+        // piccolo anello centrale) + 4 trattini di centratura N/S/E/O che
+        // attraversano il cerchio esterno, come un reticolo di puntamento.
         val center = Offset(this.size.width / 2f, this.size.height / 2f)
         val maxRadius = this.size.minDimension / 2f
+        val ringColor = Color.White.copy(alpha = 0.45f)
         val ringStroke = Stroke(width = 1.dp.toPx())
-        repeat(3) { ring ->
-            drawCircle(
-                color = Color.White.copy(alpha = 0.35f),
-                radius = maxRadius * (ring + 1) / 3f,
-                center = center,
-                style = ringStroke
+
+        val outerRadius = maxRadius * 0.85f
+        val midRadius = maxRadius * 0.55f
+        val innerRadius = maxRadius * 0.22f
+        listOf(outerRadius, midRadius, innerRadius).forEach { r ->
+            drawCircle(color = ringColor, radius = r, center = center, style = ringStroke)
+        }
+
+        val tickHalfLength = maxRadius * 0.14f
+        val tickDirections = listOf(
+            Offset(0f, -1f), // Nord
+            Offset(1f, 0f),  // Est
+            Offset(0f, 1f),  // Sud
+            Offset(-1f, 0f)  // Ovest
+        )
+        tickDirections.forEach { dir ->
+            drawLine(
+                color = ringColor,
+                start = center + dir * (outerRadius - tickHalfLength),
+                end = center + dir * (outerRadius + tickHalfLength),
+                strokeWidth = 1.dp.toPx()
             )
         }
-        // Puntino centrale: posizione dell'utente
-        drawCircle(color = Color.White.copy(alpha = 0.9f), radius = 1.5.dp.toPx(), center = center)
     }
 }
 

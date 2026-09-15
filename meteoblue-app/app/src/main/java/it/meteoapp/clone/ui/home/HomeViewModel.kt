@@ -106,6 +106,12 @@ class HomeViewModel @Inject constructor(
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
+        // Svuota subito i risultati della query precedente: senza, durante il
+        // debounce (400ms) restava visibile la lista "vecchia" e un tap
+        // rapido poteva selezionare un risultato di un testo piu' corto
+        // gia' digitato (es. risultati per "Pa" ancora a schermo mentre si
+        // sta ancora scrivendo "Pannocchia").
+        _searchResults.value = emptyList()
         if (query.isNotEmpty()) _isSearchActive.value = true
     }
 
