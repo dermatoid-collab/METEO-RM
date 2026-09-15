@@ -131,5 +131,8 @@ data class LocationSuggestion(
     val name: String,
     val latitude: Double,
     val longitude: Double,
-    val country: String = ""
+    val country: String = "",
+    // Comune/provincia/regione per distinguere localita' omonime nei
+    // risultati di ricerca (es. "Collecchio, Parma, Emilia-Romagna").
+    val region: String = ""
 )

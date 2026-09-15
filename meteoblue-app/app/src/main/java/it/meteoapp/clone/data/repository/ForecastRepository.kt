@@ -54,11 +54,17 @@ class ForecastRepository @Inject constructor(
                 ?.takeIf { it.isNotEmpty() }
                 ?: result.displayName.split(",").firstOrNull()?.trim()
                 ?: result.displayName
+            // Il resto della gerarchia (comune, provincia, regione...) dopo il
+            // primo componente del display_name di Nominatim: permette di
+            // distinguere localita' omonime (es. due "Pannocchia" in regioni
+            // diverse) gia' nella lista dei risultati, prima di selezionare.
+            val region = result.displayName.substringAfter(",", "").trim()
             LocationSuggestion(
                 name      = shortName,
                 latitude  = result.lat.toDouble(),
                 longitude = result.lon.toDouble(),
-                country   = result.address?.country ?: ""
+                country   = result.address?.country ?: "",
+                region    = region
             )
         }
     }

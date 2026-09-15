@@ -11,7 +11,10 @@ interface NominatimApi {
         @Query("q")              query: String,
         @Query("format")         format: String = "json",
         @Query("limit")          limit: Int = 5,
-        @Query("accept-language") lang: String = "it,en"
+        @Query("accept-language") lang: String = "it,en",
+        // Senza questo parametro Nominatim NON include il campo "address"
+        // nella risposta di /search: senza, address risultava sempre null.
+        @Query("addressdetails") addressDetails: Int = 1
     ): List<NominatimResult>
 }
 

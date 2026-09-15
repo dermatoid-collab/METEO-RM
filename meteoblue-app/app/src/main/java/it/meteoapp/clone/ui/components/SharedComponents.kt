@@ -137,8 +137,10 @@ fun LocationTabRow(
 }
 
 // ── Risultato ricerca ─────────────────────────────────────────────────────────
+// "region" mostra comune/provincia/regione (dal display_name di Nominatim)
+// per distinguere localita' omonime prima che l'utente selezioni.
 @Composable
-fun SearchResultItem(name: String, country: String, onClick: () -> Unit) {
+fun SearchResultItem(name: String, region: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -150,8 +152,8 @@ fun SearchResultItem(name: String, country: String, onClick: () -> Unit) {
         Spacer(Modifier.width(12.dp))
         Column {
             Text(name, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, fontWeight = FontWeight.Medium)
-            if (country.isNotEmpty()) {
-                Text(country, style = MaterialTheme.typography.labelSmall, color = TextMuted)
+            if (region.isNotEmpty()) {
+                Text(region, style = MaterialTheme.typography.labelSmall, color = TextMuted)
             }
         }
     }

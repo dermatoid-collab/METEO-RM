@@ -72,7 +72,7 @@ fun HomeScreen(
                 items(searchResults) { loc ->
                     SearchResultItem(
                         name    = loc.name,
-                        country = loc.country,
+                        region  = loc.region,
                         onClick = { viewModel.selectLocation(loc) }
                     )
                 }
