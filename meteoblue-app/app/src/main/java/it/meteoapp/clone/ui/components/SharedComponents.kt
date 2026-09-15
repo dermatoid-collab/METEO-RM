@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -237,6 +238,21 @@ fun RainspotGrid(
                 }
             }
         }
+
+        // Cerchi concentrici stile radar, sovrapposti alla griglia (come in MeteoBlue)
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val maxRadius = this.size.minDimension / 2f
+        val ringStroke = Stroke(width = 1.dp.toPx())
+        repeat(3) { ring ->
+            drawCircle(
+                color = Color.White.copy(alpha = 0.35f),
+                radius = maxRadius * (ring + 1) / 3f,
+                center = center,
+                style = ringStroke
+            )
+        }
+        // Puntino centrale: posizione dell'utente
+        drawCircle(color = Color.White.copy(alpha = 0.9f), radius = 1.5.dp.toPx(), center = center)
     }
 }
 
