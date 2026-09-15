@@ -161,20 +161,35 @@ fun SearchResultItem(name: String, country: String, onClick: () -> Unit) {
 // ── Icona meteo da pictocode ──────────────────────────────────────────────────
 @Composable
 fun WeatherIcon(pictoCode: Int, size: Dp, isNight: Boolean = false) {
-    // Emoji mapping — in produzione sostituire con icone SVG MeteoBlue
+    // Emoji mapping — in produzione sostituire con icone SVG MeteoBlue.
+    // Allineata 1:1 alla tabella pictocode ufficiale MeteoBlue (vedi
+    // pictoCodeToDescription in ForecastRepository.kt): usare range generici
+    // qui aveva mescolato codici di natura diversa (es. 15 = pioggia intensa
+    // finiva nel bucket "14..16 = neve"; ogni codice >=19 diventava un
+    // temporale ⛈, incluse pioggia gelata, cielo coperto, pioggia leggera...).
     val emoji = when {
-        isNight && pictoCode <= 3 -> "🌙"
-        isNight && pictoCode <= 9 -> "🌥"
-        pictoCode == 1            -> "☀️"
-        pictoCode in 2..3         -> "🌤"
-        pictoCode in 4..6         -> "⛅"
-        pictoCode in 7..9         -> "🌥"
-        pictoCode in 10..12       -> "🌦"
-        pictoCode in 13..13       -> "🌧"
-        pictoCode in 14..16       -> "❄️"
-        pictoCode in 17..18       -> "🌨"
-        pictoCode >= 19           -> "⛈"
-        else                      -> "🌤"
+        isNight && pictoCode <= 3  -> "🌙"
+        isNight && pictoCode <= 9  -> "🌥"
+        pictoCode == 1             -> "☀️"
+        pictoCode in 2..3          -> "🌤"
+        pictoCode in 4..6          -> "⛅"
+        pictoCode in 7..9          -> "🌥"
+        pictoCode == 10            -> "🌩"   // misto con nubi temporalesche
+        pictoCode in 11..12        -> "🌦"   // misto con rovesci
+        pictoCode == 13            -> "🌧"   // coperto con pioggia
+        pictoCode == 14            -> "❄️"   // coperto con neve
+        pictoCode == 15            -> "🌧"   // coperto con pioggia intensa
+        pictoCode == 16            -> "❄️"   // coperto con neve intensa
+        pictoCode in 17..18        -> "🌨"   // nevischio
+        pictoCode == 19            -> "🌨"   // pioggia gelata
+        pictoCode == 20            -> "⛈"   // temporali, possibile grandine
+        pictoCode in 21..22        -> "☁️"   // prevalentemente coperto / coperto
+        pictoCode == 23            -> "🌧"   // coperto con pioggia leggera
+        pictoCode == 24            -> "❄️"   // coperto con neve leggera
+        pictoCode == 25            -> "⛈"   // coperto con pioggia intensa e temporale
+        pictoCode == 26            -> "🌦"   // poco nuvoloso, probabili rovesci
+        pictoCode >= 27            -> "⛈"   // rovesci, probabili temporali
+        else                       -> "🌤"
     }
     Text(emoji, fontSize = size.value.sp)
 }

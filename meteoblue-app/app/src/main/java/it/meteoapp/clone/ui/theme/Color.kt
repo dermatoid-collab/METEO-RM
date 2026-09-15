@@ -37,4 +37,4 @@ val AccentBlue         = Color(0xFF4A90D9)
 val AccentGlow         = Color(0xFF2196F3)
 
 // ── Radar thumbnail ──────────────────────────────────────────────────────────
-val RadarDark          = Color(0xFF1B3A35)
+val RadarDark          = Color(0xFF121212)   // quasi nero, come l'icona radar MeteoBlue
