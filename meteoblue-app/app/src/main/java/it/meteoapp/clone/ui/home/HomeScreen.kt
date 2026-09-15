@@ -262,7 +262,13 @@ fun HourlyCard(h: HourlyForecast) {
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(h.hour, style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-        WeatherIcon(pictoCode = h.pictoCode, size = 24.dp)
+        WeatherIcon(
+            pictoCode         = h.pictoCode,
+            size              = 24.dp,
+            precipitation     = h.precipitation,
+            precipProbability = h.precipProbability,
+            snowFraction      = h.snowFraction
+        )
         Text(
             text  = "${h.precipProbability}%",
             style = MaterialTheme.typography.labelSmall,
@@ -299,8 +305,21 @@ fun DailyForecastRow(day: DailyForecast, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                WeatherIcon(pictoCode = day.pictocodeDay, size = 28.dp)
-                WeatherIcon(pictoCode = day.pictocodeNight, size = 22.dp, isNight = true)
+                WeatherIcon(
+                    pictoCode         = day.pictocodeDay,
+                    size              = 28.dp,
+                    precipitation     = day.precipitation,
+                    precipProbability = day.precipProbability,
+                    snowFraction      = day.snowFraction
+                )
+                WeatherIcon(
+                    pictoCode         = day.pictocodeNight,
+                    size              = 22.dp,
+                    isNight           = true,
+                    precipitation     = day.precipitation,
+                    precipProbability = day.precipProbability,
+                    snowFraction      = day.snowFraction
+                )
             }
             if (day.precipProbability > 5) {
                 Text(

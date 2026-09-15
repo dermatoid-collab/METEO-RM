@@ -160,38 +160,45 @@ fun SearchResultItem(name: String, region: String, onClick: () -> Unit) {
     HorizontalDivider(color = TextMuted.copy(alpha = 0.15f), modifier = Modifier.padding(horizontal = 16.dp))
 }
 
-// ── Icona meteo da pictocode ──────────────────────────────────────────────────
+// ── Icona meteo ───────────────────────────────────────────────────────────────
+// Il campo "pictocode" nei dati orari di MeteoBlue usa uno schema numerico
+// "dettagliato" con valori che nei test reali arrivano fino a 33 — non la
+// tabella "base" (1-17) che circola nella documentazione/community e che
+// avevamo usato in precedenza. Non avendo accesso alla tabella ufficiale
+// completa (dominio meteoblue.com non raggiungibile da questo ambiente) e
+// avendo verificato che fonti terze non ufficiali si contraddicono tra loro,
+// determiniamo pioggia/neve/temporale dai valori meteo reali gia' presenti
+// nella risposta (precipitazione, probabilita', frazione di neve) invece che
+// dal codice numerico — solo la fascia bassa (1-9, cielo sereno/nuvoloso),
+// su cui tutte le fonti concordano, viene letta dal pictocode.
 @Composable
-fun WeatherIcon(pictoCode: Int, size: Dp, isNight: Boolean = false) {
-    // Emoji mapping — in produzione sostituire con icone SVG MeteoBlue.
-    // Allineata 1:1 alla tabella pictocode ufficiale MeteoBlue (vedi
-    // pictoCodeToDescription in ForecastRepository.kt): usare range generici
-    // qui aveva mescolato codici di natura diversa (es. 15 = pioggia intensa
-    // finiva nel bucket "14..16 = neve"; ogni codice >=19 diventava un
-    // temporale ⛈, incluse pioggia gelata, cielo coperto, pioggia leggera...).
-    val emoji = when {
-        isNight && pictoCode <= 3  -> "🌙"
-        isNight && pictoCode <= 9  -> "🌥"
-        pictoCode == 1             -> "☀️"
-        pictoCode in 2..3          -> "🌤"
-        pictoCode in 4..6          -> "⛅"
-        pictoCode in 7..9          -> "🌥"
-        pictoCode == 10            -> "🌩"   // misto con nubi temporalesche
-        pictoCode in 11..12        -> "🌦"   // misto con rovesci
-        pictoCode == 13            -> "🌧"   // coperto con pioggia
-        pictoCode == 14            -> "❄️"   // coperto con neve
-        pictoCode == 15            -> "🌧"   // coperto con pioggia intensa
-        pictoCode == 16            -> "❄️"   // coperto con neve intensa
-        pictoCode in 17..18        -> "🌨"   // nevischio
-        pictoCode == 19            -> "🌨"   // pioggia gelata
-        pictoCode == 20            -> "⛈"   // temporali, possibile grandine
-        pictoCode in 21..22        -> "☁️"   // prevalentemente coperto / coperto
-        pictoCode == 23            -> "🌧"   // coperto con pioggia leggera
-        pictoCode == 24            -> "❄️"   // coperto con neve leggera
-        pictoCode == 25            -> "⛈"   // coperto con pioggia intensa e temporale
-        pictoCode == 26            -> "🌦"   // poco nuvoloso, probabili rovesci
-        pictoCode >= 27            -> "⛈"   // rovesci, probabili temporali
-        else                       -> "🌤"
+fun WeatherIcon(
+    pictoCode: Int,
+    size: Dp,
+    isNight: Boolean = false,
+    precipitation: Double = 0.0,
+    precipProbability: Int = 0,
+    snowFraction: Double = 0.0
+) {
+    val sky = when {
+        pictoCode <= 1 -> if (isNight) "🌙" else "☀️"
+        pictoCode <= 3 -> if (isNight) "🌙" else "🌤"
+        pictoCode <= 6 -> "⛅"
+        else           -> if (isNight) "☁️" else "🌥"
+    }
+
+    // Precipitazione non trascurabile: quantita' misurabile o probabilita'
+    // sufficientemente alta (sotto il 40% mostriamo solo il cielo di base,
+    // per non segnalare pioggia/neve per un rischio marginale).
+    val isPrecipitating = precipitation >= 0.1 || precipProbability >= 40
+    val emoji = if (!isPrecipitating) {
+        sky
+    } else if (snowFraction >= 0.5) {
+        if (precipitation >= 3.0) "❄️" else "🌨"
+    } else if (precipitation >= 3.0) {
+        "⛈"
+    } else {
+        "🌧"
     }
     Text(emoji, fontSize = size.value.sp)
 }

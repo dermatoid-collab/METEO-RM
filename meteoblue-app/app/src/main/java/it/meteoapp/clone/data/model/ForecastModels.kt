@@ -43,7 +43,11 @@ data class HourlyData(
     @SerializedName("uvindex")             val uvIndex: List<Int>,
     @SerializedName("relativehumidity")    val humidity: List<Int>,
     // Mini-mappa precipitazioni 7x7 (49 caratteri, cifre 0-9 = intensita' per cella)
-    @SerializedName("rainspot")            val rainspot: List<String>? = null
+    @SerializedName("rainspot")            val rainspot: List<String>? = null,
+    // Frazione (0-1) della precipitazione che cade come neve: usata per
+    // decidere pioggia/neve al posto del solo pictocode (vedi nota in
+    // ForecastRepository sulla tabella pictocode non verificabile).
+    @SerializedName("snowfraction")        val snowFraction: List<Double>? = null
 )
 
 // ── Dati giornalieri ──────────────────────────────────────────────────────────
@@ -70,7 +74,8 @@ data class DailyData(
     @SerializedName("moonrise")             val moonrise: List<String>? = null,
     @SerializedName("moonset")              val moonset: List<String>? = null,
     // Mini-mappa precipitazioni 7x7 (49 caratteri, cifre 0-9 = intensita' per cella)
-    @SerializedName("rainspot")             val rainspot: List<String>? = null
+    @SerializedName("rainspot")             val rainspot: List<String>? = null,
+    @SerializedName("snowfraction")         val snowFraction: List<Double>? = null
 )
 
 // ── Mini-mappa precipitazioni 7x7 ────────────────────────────────────────────
@@ -100,7 +105,8 @@ data class HourlyForecast(
     val pictoCode: Int,
     val uvIndex: Int,
     val humidity: Int,
-    val rainspot: String = EMPTY_RAINSPOT
+    val rainspot: String = EMPTY_RAINSPOT,
+    val snowFraction: Double = 0.0
 )
 
 data class DailyForecast(
@@ -124,7 +130,8 @@ data class DailyForecast(
     val moonset: String,
     val pressureMax: Double,
     val humidity: Int,        // dal primo dato orario del giorno
-    val rainspot: String = EMPTY_RAINSPOT
+    val rainspot: String = EMPTY_RAINSPOT,
+    val snowFraction: Double = 0.0
 )
 
 data class LocationSuggestion(

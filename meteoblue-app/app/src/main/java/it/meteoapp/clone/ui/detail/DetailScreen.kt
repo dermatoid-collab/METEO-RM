@@ -28,7 +28,7 @@ import coil.compose.AsyncImage
 import it.meteoapp.clone.data.model.DailyForecast
 import it.meteoapp.clone.data.model.HourlyForecast
 import it.meteoapp.clone.data.repository.ForecastResult
-import it.meteoapp.clone.data.repository.pictoCodeToDescription
+import it.meteoapp.clone.data.repository.weatherDescription
 import it.meteoapp.clone.data.repository.windDirectionArrow
 import it.meteoapp.clone.ui.components.RainspotGrid
 import it.meteoapp.clone.ui.components.WeatherIcon
@@ -219,7 +219,15 @@ fun DayHeroSection(day: DailyForecast) {
         )
         Spacer(Modifier.height(6.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(pictoCodeToDescription(day.pictocodeDay), color = TextSecondary, fontSize = 14.sp)
+            Text(
+                weatherDescription(
+                    pictoCode         = day.pictocodeDay,
+                    precipitation     = day.precipitation,
+                    precipProbability = day.precipProbability,
+                    snowFraction      = day.snowFraction
+                ),
+                color = TextSecondary, fontSize = 14.sp
+            )
             Text(" • UV ", color = TextSecondary, fontSize = 14.sp)
             Text("${day.uvIndex}", color = UvMid, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
@@ -353,7 +361,13 @@ fun HourlyForecastRow(h: HourlyForecast) {
         Spacer(Modifier.width(12.dp))
 
         // Icona meteo
-        WeatherIcon(pictoCode = h.pictoCode, size = 32.dp)
+        WeatherIcon(
+            pictoCode         = h.pictoCode,
+            size              = 32.dp,
+            precipitation     = h.precipitation,
+            precipProbability = h.precipProbability,
+            snowFraction      = h.snowFraction
+        )
 
         Spacer(Modifier.width(8.dp))
 

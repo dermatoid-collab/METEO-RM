@@ -89,7 +89,12 @@ class ForecastRepository @Inject constructor(
         val current = CurrentConditions(
             locationName    = locationName,
             temperature     = h.temperature[currentHourIdx].toInt(),
-            description     = pictoCodeToDescription(h.pictoCode[currentHourIdx]),
+            description     = weatherDescription(
+                pictoCode         = h.pictoCode[currentHourIdx],
+                precipitation     = h.precipitation.getOrElse(currentHourIdx) { 0.0 },
+                precipProbability = h.precipProbability.getOrElse(currentHourIdx) { 0 },
+                snowFraction      = h.snowFraction?.getOrElse(currentHourIdx) { 0.0 } ?: 0.0
+            ),
             uvIndex         = h.uvIndex[currentHourIdx],
             lastUpdateMinutes = 0,
             pictoCode       = h.pictoCode[currentHourIdx]
@@ -110,7 +115,8 @@ class ForecastRepository @Inject constructor(
                 pictoCode        = h.pictoCode[i],
                 uvIndex          = h.uvIndex.getOrElse(i) { 0 },
                 humidity         = h.humidity.getOrElse(i) { 0 },
-                rainspot         = h.rainspot?.getOrElse(i) { EMPTY_RAINSPOT } ?: EMPTY_RAINSPOT
+                rainspot         = h.rainspot?.getOrElse(i) { EMPTY_RAINSPOT } ?: EMPTY_RAINSPOT,
+                snowFraction     = h.snowFraction?.getOrElse(i) { 0.0 } ?: 0.0
             )
         }
 
@@ -152,7 +158,8 @@ class ForecastRepository @Inject constructor(
                 moonset         = d.moonset?.getOrElse(i) { "--:--" }?.takeLast(5) ?: "--:--",
                 pressureMax     = d.pressureMax.getOrElse(i) { 1013.0 },
                 humidity        = dayHumidity,
-                rainspot        = d.rainspot?.getOrElse(i) { EMPTY_RAINSPOT } ?: EMPTY_RAINSPOT
+                rainspot        = d.rainspot?.getOrElse(i) { EMPTY_RAINSPOT } ?: EMPTY_RAINSPOT,
+                snowFraction    = d.snowFraction?.getOrElse(i) { 0.0 } ?: 0.0
             )
         }
 
@@ -176,36 +183,35 @@ data class ForecastResult(
     val metadata: Metadata
 )
 
-// ── Mappa pictocode MeteoBlue → descrizione testuale ─────────────────────────
-fun pictoCodeToDescription(code: Int): String = when (code) {
-    1    -> "Clear, cloudless sky"
-    2    -> "Clear, few cirrus clouds"
-    3    -> "Clear with cirrus clouds"
-    4    -> "Clear with few low clouds"
-    5    -> "Clear with few low clouds and cirrus"
-    6    -> "Clear with low clouds"
-    7    -> "Partly cloudy"
-    8    -> "Partly cloudy and few low clouds"
-    9    -> "Partly cloudy"
-    10   -> "Mixed with some thunderstorm clouds"
-    11   -> "Mixed with few showers"
-    12   -> "Mixed with showers"
-    13   -> "Overcast with rain"
-    14   -> "Overcast with snow"
-    15   -> "Overcast with heavy rain"
-    16   -> "Overcast with heavy snow"
-    17   -> "Mixed with sleet"
-    18   -> "Overcast with sleet"
-    19   -> "Overcast with freezing rain"
-    20   -> "Thunderstorms, hail possible"
-    21   -> "Mostly overcast"
-    22   -> "Overcast"
-    23   -> "Overcast with light rain"
-    24   -> "Overcast with light snow"
-    25   -> "Overcast with heavy rain and thunder"
-    26   -> "Partly cloudy, showers likely"
-    27   -> "Showers, thunderstorms likely"
-    else -> "Variable conditions"
+// ── Descrizione meteo testuale ────────────────────────────────────────────────
+// Il pictocode orario di MeteoBlue usa uno schema numerico "dettagliato" i cui
+// valori reali (verificati fino a 33) eccedono qualsiasi tabella pictocode
+// documentata a cui abbiamo potuto accedere (il dominio meteoblue.com non e'
+// raggiungibile da questo ambiente, e le fonti non ufficiali disponibili si
+// contraddicono tra loro). Per evitare di mostrare condizioni inventate,
+// deriviamo la descrizione dai dati meteo reali (precipitazione, probabilita',
+// frazione di neve) gia' presenti nella risposta, usando il pictocode solo
+// per la fascia bassa (1-9, cielo sereno/nuvoloso) su cui le fonti concordano.
+fun weatherDescription(
+    pictoCode: Int,
+    precipitation: Double,
+    precipProbability: Int,
+    snowFraction: Double
+): String {
+    val sky = when {
+        pictoCode <= 1 -> "Clear sky"
+        pictoCode <= 3 -> "Mostly clear"
+        pictoCode <= 6 -> "Partly cloudy"
+        else           -> "Cloudy"
+    }
+    val isPrecipitating = precipitation >= 0.1 || precipProbability >= 40
+    if (!isPrecipitating) return sky
+    return when {
+        snowFraction >= 0.5 && precipitation >= 3.0 -> "Heavy snow"
+        snowFraction >= 0.5                          -> "Light snow"
+        precipitation >= 3.0                          -> "Thunderstorms possible"
+        else                                          -> "Rain"
+    }
 }
 
 // ── Direzione vento → simbolo freccia ────────────────────────────────────────
