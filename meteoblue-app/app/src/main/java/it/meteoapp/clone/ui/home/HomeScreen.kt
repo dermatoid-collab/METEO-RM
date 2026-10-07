@@ -372,7 +372,7 @@ fun DailyForecastRow(day: DailyForecast, onClick: () -> Unit) {
                 textAlign = TextAlign.End
             )
             Text(
-                "☀ ${day.sunshineHours.toInt()} h",
+                "☀️ ${day.sunshineHours.toInt()} h",
                 style = MaterialTheme.typography.labelSmall,
                 color = TextMuted,
                 textAlign = TextAlign.End

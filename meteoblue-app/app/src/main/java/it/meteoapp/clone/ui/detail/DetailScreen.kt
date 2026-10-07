@@ -275,7 +275,7 @@ fun DayInfoBox(day: DailyForecast) {
             // Pressione + umidità
             Column(verticalArrangement = Arrangement.spacedBy(6.dp), horizontalAlignment = Alignment.End) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("⬇ ", color = TextSecondary, fontSize = 12.sp)
+                    Text("⬇️ ", color = TextSecondary, fontSize = 12.sp)
                     Text("${day.pressureMax.toInt()} hPa", color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -391,7 +391,7 @@ fun HourlyForecastRow(h: HourlyForecast) {
             modifier = Modifier.width(36.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("🖐", fontSize = 16.sp)
+            Text("🖐️", fontSize = 16.sp)
             Text("${h.feltTemperature}°", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
         }
 

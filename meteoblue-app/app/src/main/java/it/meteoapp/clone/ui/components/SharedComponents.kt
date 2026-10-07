@@ -180,11 +180,15 @@ fun WeatherIcon(
     precipProbability: Int = 0,
     snowFraction: Double = 0.0
 ) {
+    // Nota: ⛈🌤🌥🌧🌨 hanno presentazione testo di default su Android senza
+    // il selettore di variante U+FE0F (verificato contro i dati ufficiali
+    // Unicode emoji-variation-sequences) — senza, vengono renderizzate come
+    // glifo monocromatico invece che a colori, illeggibili sullo sfondo scuro.
     val sky = when {
         pictoCode <= 1 -> if (isNight) "🌙" else "☀️"
-        pictoCode <= 3 -> if (isNight) "🌙" else "🌤"
+        pictoCode <= 3 -> if (isNight) "🌙" else "🌤️"
         pictoCode <= 6 -> "⛅"
-        else           -> if (isNight) "☁️" else "🌥"
+        else           -> if (isNight) "☁️" else "🌥️"
     }
 
     // Precipitazione non trascurabile: quantita' misurabile o probabilita'
@@ -194,11 +198,11 @@ fun WeatherIcon(
     val emoji = if (!isPrecipitating) {
         sky
     } else if (snowFraction >= 0.5) {
-        if (precipitation >= 3.0) "❄️" else "🌨"
+        if (precipitation >= 3.0) "❄️" else "🌨️"
     } else if (precipitation >= 3.0) {
-        "⛈"
+        "⛈️"
     } else {
-        "🌧"
+        "🌧️"
     }
     Text(emoji, fontSize = size.value.sp)
 }
