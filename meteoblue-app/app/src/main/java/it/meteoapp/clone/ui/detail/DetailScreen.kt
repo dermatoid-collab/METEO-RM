@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 import it.meteoapp.clone.data.model.DailyForecast
 import it.meteoapp.clone.data.model.HourlyForecast
 import it.meteoapp.clone.data.repository.ForecastResult
@@ -52,12 +55,24 @@ fun DetailScreen(
     }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val selectedDay = state.dailyForecasts.getOrNull(state.selectedDayIndex) ?: return
-    val hourlyForDay = viewModel.hourlyForDay(state.selectedDayIndex)
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(initialPage = initialDayIndex) { state.dailyForecasts.size }
+
+    // Lo swipe nel pager e' la fonte di verita' per il giorno selezionato:
+    // propaga al ViewModel (sincronizza i pager dots, l'header orario, ecc.)
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            viewModel.selectDay(page)
+        }
+    }
+
+    val backgroundDay = state.dailyForecasts.getOrNull(pagerState.currentPage)
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Sfondo fotografico dinamico
-        WeatherBackgroundImage(pictoCode = selectedDay.pictocodeDay)
+        if (backgroundDay != null) {
+            WeatherBackgroundImage(pictoCode = backgroundDay.pictocodeDay)
+        }
 
         // Overlay scuro per leggibilità
         Box(
@@ -73,52 +88,52 @@ fun DetailScreen(
                 )
         )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 32.dp)
-        ) {
-            // TopBar
-            item {
-                DetailTopBar(
-                    locationName = state.locationName,
-                    onBack       = onBack
-                )
-            }
+        Column(modifier = Modifier.fillMaxSize()) {
+            DetailTopBar(
+                locationName = state.locationName,
+                onBack       = onBack
+            )
 
-            // Pager dots (7 giorni)
-            item {
-                DayPagerDots(
-                    count         = state.dailyForecasts.size,
-                    selectedIndex = state.selectedDayIndex,
-                    onSelect      = viewModel::selectDay
-                )
-            }
+            // Pager dots (7 giorni) — tap per saltare direttamente a un giorno
+            DayPagerDots(
+                count         = state.dailyForecasts.size,
+                selectedIndex = pagerState.currentPage,
+                onSelect      = { index ->
+                    scope.launch { pagerState.animateScrollToPage(index) }
+                }
+            )
 
-            // Hero del giorno
-            item {
-                DayHeroSection(day = selectedDay)
-            }
+            // Un giorno per pagina: swipe orizzontale tra i giorni, scroll
+            // verticale indipendente per la lista oraria di ciascuno.
+            HorizontalPager(
+                state    = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) { page ->
+                val day = state.dailyForecasts.getOrNull(page) ?: return@HorizontalPager
+                val hourlyForDay = viewModel.hourlyForDay(page)
 
-            // Info box: alba/tramonto, luna, pressione, umidità
-            item {
-                DayInfoBox(day = selectedDay)
-            }
-
-            // Header hourly forecast con toggle
-            item {
-                HourlyForecastHeader(
-                    step     = state.hourlyStep,
-                    onToggle = viewModel::toggleHourlyStep
-                )
-            }
-
-            // Lista oraria
-            items(hourlyForDay) { h ->
-                HourlyForecastRow(h)
-                HorizontalDivider(
-                    color = TextMuted.copy(alpha = 0.15f),
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 32.dp)
+                ) {
+                    item { DayHeroSection(day = day) }
+                    item { DayInfoBox(day = day) }
+                    item {
+                        HourlyForecastHeader(
+                            step     = state.hourlyStep,
+                            onToggle = viewModel::toggleHourlyStep
+                        )
+                    }
+                    items(hourlyForDay) { h ->
+                        HourlyForecastRow(h)
+                        HorizontalDivider(
+                            color = TextMuted.copy(alpha = 0.15f),
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
             }
         }
     }
